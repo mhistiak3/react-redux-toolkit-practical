@@ -1,25 +1,35 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { postAdded } from "../store/reducers/posts.slice";
+import { addNewPost } from "../store/reducers/posts.slice";
 import { selectAllusers } from "../store/reducers/users.slice";
 const AddPost = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [userId, setUserId] = useState("");
-
-  const users = useSelector(selectAllusers);
+  const [addReqStatus, setAddReqStatus] = useState("idle");
 
   const dispatch = useDispatch();
+  const users = useSelector(selectAllusers);
+  const canSave =
+    [title, content, userId].every(Boolean) && addReqStatus === "idle";
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title || !content || !userId) return;
+    if (canSave) {
+      try {
+        setAddReqStatus("pending");
+        dispatch(addNewPost({ title, body: content, userId })).unwrap();
 
-
-    dispatch(postAdded(title, content, userId));
-    setTitle("");
-    setContent("");
+        setTitle("");
+        setContent("");
+        setUserId("");
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setAddReqStatus("idle");
+      }
+    }
   };
-  const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
 
   return (
     <form
@@ -54,7 +64,13 @@ const AddPost = () => {
         value={content}
         onChange={(e) => setContent(e.target.value)}
       />
-      <button disabled={!canSave} className={"w-full bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition duration-300 " + (canSave ? "cursor-pointer" : "cursor-not-allowed")}>
+      <button
+        disabled={!canSave}
+        className={
+          "w-full bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition duration-300 " +
+          (canSave ? "cursor-pointer" : "cursor-not-allowed")
+        }
+      >
         Post
       </button>
     </form>

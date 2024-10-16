@@ -2,6 +2,8 @@ import { useDispatch } from "react-redux";
 import { reactionsAdded } from "../store/reducers/posts.slice";
 
 const ReactionButton = ({ postId, reactions }) => {
+ 
+  
   const reactionsEmoji = {
     thumbUp: "👍",
     heart: "❤️",
